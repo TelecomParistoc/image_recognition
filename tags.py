@@ -1,6 +1,6 @@
 import numpy as np
-import cv2
 from cv2 import aruco
+import cv2
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
@@ -25,12 +25,18 @@ plt.show()
 capture = cv2.VideoCapture(0)
 
 while 1:
-    read_flag, frame = capture.read()
+    #read_flag, frame = capture.read()
+    frame = cv2.imread("./test55.jpg")
+    #Floutage
+    kernel = np.ones((8,8),np.float32)/64
+    frame = cv2.filter2D(frame,-1,kernel)
+
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_250)
+    aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_1000)
     parameters =  aruco.DetectorParameters_create()
     corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
     frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
+    aruco.drawDetectedMarkers(frame, rejectedImgPoints, borderColor=(100, 0, 240))
     for corner in corners:
         point1 = tuple(corner[0][0])
         point2 = tuple(corner[0][1])

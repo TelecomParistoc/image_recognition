@@ -2,6 +2,7 @@ import numpy as np
 import numpy.linalg as alg
 import cv2
 import time
+#TODO: fix debug
 DEBUG = 0
 VECTEURS = 1
 
@@ -63,8 +64,9 @@ def get_angle_list(centroids, num, stats, labels):
 
         theta = np.arctan2(vecteur_propre_1_normalized[1],vecteur_propre_1_normalized[0]) * 180 / np.pi
         if VECTEURS:
-            cv2.arrowedLine(mask, (int(x), int(y)), (int(x + vecteur_propre_1_normalized[0]*100), int(y+vecteur_propre_1_normalized[1]*100)),  (0, 255, 0), 3)        
-            cv2.arrowedLine(mask, (int(x), int(y)), (int(x + vecteur_propre_2_normalized[0]*50), int(y+vecteur_propre_2_normalized[1]*50)),  (0, 255, 0), 3)
+            #TODO: couleur vecteurs
+            cv2.arrowedLine(mask, (int(x), int(y)), (int(x + vecteur_propre_1_normalized[0]*100), int(y+vecteur_propre_1_normalized[1]*100)),  (0, 255, 255), 10)        
+            cv2.arrowedLine(mask, (int(x), int(y)), (int(x + vecteur_propre_2_normalized[0]*50), int(y+vecteur_propre_2_normalized[1]*50)),  (0, 255, 255), 10)
             cv2.imshow('imageTronquee',mask)
             cv2.waitKey(5000)
         angle = theta
@@ -75,7 +77,7 @@ def get_angle_list(centroids, num, stats, labels):
 capture = cv2.VideoCapture(0)
 while capture.isOpened():
 '''
-img = cv2.imread("demi_cercle2.png")
+img = cv2.imread("test55.jpg")
 height, width = img.shape[0], img.shape[1]
 
 #Downsampling
@@ -89,8 +91,8 @@ kernel = np.ones((5,5),np.float32)/25
 img = cv2.filter2D(img,-1,kernel)
 
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-lower_v = np.array([0, 0, 240])
-upper_v = np.array([255, 255, 255])
+lower_v = np.array([0, 0, 0])
+upper_v = np.array([255, 255, 45])
 mask = cv2.inRange(hsv, lower_v, upper_v)
 #image_tronquee = cv2.bitwise_and(img, img, mask=mask)    
 num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
