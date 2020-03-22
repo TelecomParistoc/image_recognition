@@ -5,7 +5,7 @@ import time
 
 DEBUG = 0
 VECTEURS = 1
-VIDEO = 1
+VIDEO = 0
 
 def normalize(vecteur):
     norme = alg.norm(vecteur)
@@ -105,22 +105,17 @@ if VIDEO:
         angle = get_angle_list(centroids, num, stats, labels)
         print(angle)
 else:
-    img = cv2.imread("test55.jpg")
+    img = cv2.imread("test1.jpg")
+    img = cv2.resize(img, (480, 640), interpolation = cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
-
-    #Downsampling
-    W = width/2
-    imgScale = W/width
-    newX,newY = img.shape[1]*imgScale, img.shape[0]*imgScale
-    img = cv2.resize(img,(int(newX),int(newY)))
 
     #Floutage
     kernel = np.ones((5,5),np.float32)/25
     img = cv2.filter2D(img,-1,kernel)
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    lower_v = np.array([0, 0, 0])
-    upper_v = np.array([255, 255, 20])
+    lower_v = np.array([0, 0, 240])
+    upper_v = np.array([255, 255, 255])
     mask = cv2.inRange(hsv, lower_v, upper_v)
     image_tronquee = cv2.bitwise_and(img, img, mask=mask)    
     num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)

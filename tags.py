@@ -26,11 +26,14 @@ capture = cv2.VideoCapture(0)
 
 while 1:
     #read_flag, frame = capture.read()
-    frame = cv2.imread("./test55.jpg")
-    #Floutage
-    kernel = np.ones((8,8),np.float32)/64
-    frame = cv2.filter2D(frame,-1,kernel)
+    frame = cv2.imread("./test2.jpg")
+    frame = cv2.resize(frame, (480, 640), interpolation = cv2.INTER_AREA)
 
+    """
+    #Floutage
+    kernel = np.ones((2,2),np.float32)/4
+    frame = cv2.filter2D(frame,-1,kernel)
+    """
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_1000)
     parameters =  aruco.DetectorParameters_create()
