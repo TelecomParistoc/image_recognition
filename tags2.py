@@ -3,7 +3,7 @@ import numpy.linalg as alg
 import cv2
 import time
 
-DEBUG = 0
+DEBUG = 1
 VECTEURS = 1
 VIDEO = 0
 
@@ -55,7 +55,7 @@ def get_angle_list(centroids, num, stats, labels):
     index_list = index_list.astype(int)
 
     angle = 0
-    for i in index_list:
+    for i in index_list[0:1]:
         object_img = np.uint8(labels == i)
         if DEBUG:
             object_img2 = cv2.bitwise_and(image_tronquee, image_tronquee, mask=object_img)
@@ -114,10 +114,14 @@ else:
     img = cv2.filter2D(img,-1,kernel)
 
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    lower_v = np.array([0, 0, 240])
-    upper_v = np.array([255, 255, 255])
+    lower_v = np.array([0, 0, 0])
+    upper_v = np.array([255, 255, 120])
     mask = cv2.inRange(hsv, lower_v, upper_v)
-    image_tronquee = cv2.bitwise_and(img, img, mask=mask)    
+    aa = cv2.bitwise_not(img)
+
+    image_tronquee = cv2.bitwise_and(aa, aa, mask=mask)
+    cv2.imshow("mask", image_tronquee)
+    cv2.waitKey(10000)
     num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
     angle = get_angle_list(centroids, num, stats, labels)
     print(angle)
