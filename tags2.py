@@ -2,10 +2,13 @@ import numpy as np
 import numpy.linalg as alg
 import cv2
 import time
+import random as rng
+
+rng.seed(12345)
 
 DEBUG = 1
 VECTEURS = 1
-MIN_PIXEL = 1000
+MIN_PIXEL = 3000
 
 def normalize(vecteur):
     norme = alg.norm(vecteur)
@@ -17,7 +20,7 @@ def normalize(vecteur):
 def eigen_elements(matrice):
     eigen_results = alg.eig(matrice)
     valeur_propre_1, valeur_propre_2, vecteur_propre_1, vecteur_propre_2 = eigen_results[0][0], eigen_results[0][1], eigen_results[1][0], eigen_results[1][1]
-    vecteur_propre_1_normalized, vecteur_propre_2_normalized = normalize(vecteur_propre_1), normalize(vecteur_propre_2)
+    vecteur_propre_1_normalized, vecteur_propre_2_normalized = (vecteur_propre_1), (vecteur_propre_2)
     if valeur_propre_2 > valeur_propre_1:
         return vecteur_propre_2_normalized, vecteur_propre_1_normalized
     return vecteur_propre_1_normalized, vecteur_propre_2_normalized
@@ -67,6 +70,19 @@ def get_angle(centroids, num, stats, labels) -> int:
         #Get the mask with the coresponding connected component
         object_img = np.uint8(labels == i)
 
+
+        contours, _ = cv2.findContours(object_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # Find the convex hull object for each contour
+        hull_list = []
+        for i in range(len(contours)):
+            hull = cv2.convexHull(contours[i])
+            hull_list.append(hull)
+        # Draw contours + hull results
+        for i in range(1):
+            color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
+            cv2.drawContours(img, hull_list, i, color, 5)
+
+
         #Display the masked image, debug purpose
         if DEBUG:
             object_img2 = cv2.bitwise_and(image_tronquee, image_tronquee, mask=object_img)
@@ -74,7 +90,7 @@ def get_angle(centroids, num, stats, labels) -> int:
             cv2.waitKey(1000)
 
         #Get the moments and build the inertial matrix from it, and recover center coord of the connected component
-        moment = cv2.moments(object_img, True)
+        moment = cv2.moments(hull_list[0])
         if moment["m00"] != 0:
             x = int(moment["m10"] / moment["m00"])
             y = int(moment["m01"] / moment["m00"])
@@ -82,13 +98,18 @@ def get_angle(centroids, num, stats, labels) -> int:
 
         #Eigenelements are calculated, they allow us to recover the angle
         vecteur_propre_1_normalized, vecteur_propre_2_normalized = eigen_elements(matrice_inertie)
-        theta = np.arctan2(vecteur_propre_2_normalized[0],vecteur_propre_2_normalized[1]) * 180 / np.pi
-        angle = theta
 
+        theta = np.arctan2(vecteur_propre_2_normalized[1],vecteur_propre_2_normalized[0]) * 180 / np.pi
+        angle = theta
+        if vecteur_propre_2_normalized[1] > 0:
+            aa = "SOUTH"
+        else:
+            aa = "NORTH"
         #Display the eigenvectors superposed on the image
         if VECTEURS:
-            cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_1_normalized[0]*100), int(y+vecteur_propre_1_normalized[1]*100)),  (0, 255, 255), 5)        
-            cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_2_normalized[0]*50), int(y+vecteur_propre_2_normalized[1]*50)),  (0, 255, 255), 5)
+            cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_1_normalized[0]*100), int(y + vecteur_propre_1_normalized[1]*100)),  (0, 255, 255), 5)        
+            cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_2_normalized[0]*50), int(y + vecteur_propre_2_normalized[1]*50)),  (0, 255, 255), 5)
+            cv2.putText(img, aa, (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255, 3)
             cv2.imshow('Debug vecteurs', img)
             cv2.waitKey(1000)
 
@@ -96,8 +117,8 @@ def get_angle(centroids, num, stats, labels) -> int:
     
 if __name__ == "__main__":
     #Load image
-    img = cv2.imread("test2.jpg")
-    img = cv2.resize(img, (480, 640), interpolation = cv2.INTER_AREA)
+    img = cv2.imread("test4.jpg")
+    img = cv2.resize(img, (360, 640), interpolation = cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
 
     #Blur
@@ -117,7 +138,7 @@ if __name__ == "__main__":
     cv2.waitKey(1000)
 
     #Generate connected components, then calculate the angle
-    num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
+    num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=4)
     angle = get_angle(centroids, num, stats, labels)
     print(angle)
     input()

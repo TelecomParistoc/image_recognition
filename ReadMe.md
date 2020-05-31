@@ -4,12 +4,14 @@ For the Coupe de Robotique, we need to determine the orientation of a girouette
 
 ## Description of the girouette
 
-TODO
+TODO: readme
 
 ## Algorithms
 
 ### First: cv2 library
-Todo
+TODO: readme
 
 ### Second : cv2 homemade
-Todo
+TODO: readme
+
+TODO: tuning algo 
