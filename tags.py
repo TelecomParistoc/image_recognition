@@ -3,7 +3,6 @@ from cv2 import aruco
 import cv2
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import pandas as pd
 
 aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_250)
 
@@ -38,9 +37,9 @@ while 1:
     aruco_dict = aruco.Dictionary_get(aruco.DICT_6X6_1000)
     parameters =  aruco.DetectorParameters_create()
     corners, ids, rejectedImgPoints = aruco.detectMarkers(gray, aruco_dict, parameters=parameters)
-    frame_markers = aruco.drawDetectedMarkers(frame.copy(), corners, ids)
+    frame_markers = aruco.drawDetectedMarkers(frame, corners, ids)
     aruco.drawDetectedMarkers(frame, rejectedImgPoints, borderColor=(100, 0, 240))
-    for corner in corners:
+    for corner in rejectedImgPoints:
         point1 = tuple(corner[0][0])
         point2 = tuple(corner[0][1])
         cv2.arrowedLine(frame, point1, point2, color=(255, 0, 0), thickness=4)

@@ -5,7 +5,7 @@ import time
 
 DEBUG = 1
 VECTEURS = 1
-VIDEO = 0
+MIN_PIXEL = 1000
 
 def normalize(vecteur):
     norme = alg.norm(vecteur)
@@ -37,91 +37,87 @@ def get_distance_2_center(x_value, y_value):
     return (x_value - width / 2)**2 + (y_value - height / 2)**2
 
 
-def get_angle_list(centroids, num, stats, labels):
+def get_angle(centroids, num, stats, labels) -> int:
+
     sorted_tuples = []
-    for i in range(1, num):        #The first one is the whole image
-        if stats[i][-1]<10:        #If the number of pixels is abnormal, just ignore
+
+    #Stats of len num : num connected components detected by cv
+    for i in range(1, num):     #The first one is the whole image
+        #If the number of pixels is too low, just ignore
+        if stats[i][-1] < MIN_PIXEL:
             continue
         distance = get_distance_2_center(centroids[i, 0], centroids[i, 1])
         sorted_tuples.append((i, distance))
-    #Permet de trier la liste selon le 2ème paramètre
-    sorted_tuples.sort(key=lambda x: x[1])
-    print(stats)
 
+    #Get the tuples (index of connected components, distance to center), now sorted by increasing distance
+    sorted_tuples.sort(key=lambda x: x[1])
     sorted_tuples = np.array(sorted_tuples)
+
+    #If no element, some parameters have to be tuned ... (Masking step)
     if len(sorted_tuples)==0:
-        return 0
+        return np.NaN
+
+    #Get the list of indexes, still sorted by increasing distance to center
     index_list = sorted_tuples[:, 0]
     index_list = index_list.astype(int)
 
+    #For loop for test purpose (displaying multiple proposals, tune the MIN_PIXEL parameter zb)
     angle = 0
     for i in index_list[0:1]:
+        #Get the mask with the coresponding connected component
         object_img = np.uint8(labels == i)
+
+        #Display the masked image, debug purpose
         if DEBUG:
             object_img2 = cv2.bitwise_and(image_tronquee, image_tronquee, mask=object_img)
             cv2.imshow('imageTronquee', object_img2)
             cv2.waitKey(1000)
+
+        #Get the moments and build the inertial matrix from it, and recover center coord of the connected component
         moment = cv2.moments(object_img, True)
         if moment["m00"] != 0:
             x = int(moment["m10"] / moment["m00"])
             y = int(moment["m01"] / moment["m00"])
         matrice_inertie = get_inertia_matrix(moment)
-        vecteur_propre_1_normalized, vecteur_propre_2_normalized = eigen_elements(matrice_inertie)
 
-        theta = np.arctan2(vecteur_propre_1_normalized[1],vecteur_propre_1_normalized[0]) * 180 / np.pi
+        #Eigenelements are calculated, they allow us to recover the angle
+        vecteur_propre_1_normalized, vecteur_propre_2_normalized = eigen_elements(matrice_inertie)
+        theta = np.arctan2(vecteur_propre_2_normalized[0],vecteur_propre_2_normalized[1]) * 180 / np.pi
+        angle = theta
+
+        #Display the eigenvectors superposed on the image
         if VECTEURS:
             cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_1_normalized[0]*100), int(y+vecteur_propre_1_normalized[1]*100)),  (0, 255, 255), 5)        
             cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_2_normalized[0]*50), int(y+vecteur_propre_2_normalized[1]*50)),  (0, 255, 255), 5)
             cv2.imshow('Debug vecteurs', img)
             cv2.waitKey(1000)
-        angle = theta
+
     return(angle)
     
-
-if VIDEO:
-    #TODO: fix affichage vecteurs
-    capture = cv2.VideoCapture(0)
-    while capture.isOpened():
-        #img = cv2.imread("test55.jpg")
-        _, img = capture.read()
-        height, width = img.shape[0], img.shape[1]
-
-        #Downsampling
-        W = width/2
-        imgScale = W/width
-        newX,newY = img.shape[1]*imgScale, img.shape[0]*imgScale
-        img = cv2.resize(img,(int(newX),int(newY)))
-
-        #Floutage
-        kernel = np.ones((5,5),np.float32)/25
-        img = cv2.filter2D(img,-1,kernel)
-
-        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        lower_v = np.array([0, 0, 0])
-        upper_v = np.array([255, 255, 45])
-        mask = cv2.inRange(hsv, lower_v, upper_v)
-        #image_tronquee = cv2.bitwise_and(img, img, mask=mask)    
-        num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
-        angle = get_angle_list(centroids, num, stats, labels)
-        print(angle)
-else:
-    img = cv2.imread("test1.jpg")
+if __name__ == "__main__":
+    #Load image
+    img = cv2.imread("test2.jpg")
     img = cv2.resize(img, (480, 640), interpolation = cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
 
-    #Floutage
+    #Blur
     kernel = np.ones((5,5),np.float32)/25
     img = cv2.filter2D(img,-1,kernel)
 
+    #Filter
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     lower_v = np.array([0, 0, 0])
     upper_v = np.array([255, 255, 120])
     mask = cv2.inRange(hsv, lower_v, upper_v)
     aa = cv2.bitwise_not(img)
 
+    #Display masked area (to tune the mask)
     image_tronquee = cv2.bitwise_and(aa, aa, mask=mask)
-    cv2.imshow("mask", image_tronquee)
-    cv2.waitKey(10000)
+    cv2.imshow("Masque", image_tronquee)
+    cv2.waitKey(1000)
+
+    #Generate connected components, then calculate the angle
     num, labels, stats, centroids = cv2.connectedComponentsWithStats(mask, connectivity=8)
-    angle = get_angle_list(centroids, num, stats, labels)
+    angle = get_angle(centroids, num, stats, labels)
     print(angle)
+    input()
