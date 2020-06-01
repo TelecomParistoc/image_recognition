@@ -70,18 +70,16 @@ def get_angle(centroids, num, stats, labels) -> int:
         #Get the mask with the coresponding connected component
         object_img = np.uint8(labels == i)
 
-
         contours, _ = cv2.findContours(object_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # Find the convex hull object for each contour
         hull_list = []
         for i in range(len(contours)):
             hull = cv2.convexHull(contours[i])
             hull_list.append(hull)
-        # Draw contours + hull results
-        for i in range(1):
-            color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
-            cv2.drawContours(img, hull_list, i, color, 5)
 
+        # Draw contours + hull results
+        color = (rng.randint(0,256), rng.randint(0,256), rng.randint(0,256))
+        cv2.drawContours(img, hull_list, -1, color, 5)
 
         #Display the masked image, debug purpose
         if DEBUG:
@@ -117,7 +115,7 @@ def get_angle(centroids, num, stats, labels) -> int:
     
 if __name__ == "__main__":
     #Load image
-    img = cv2.imread("test4.jpg")
+    img = cv2.imread("test3.jpg")
     img = cv2.resize(img, (360, 640), interpolation = cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
 
