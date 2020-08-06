@@ -1,9 +1,5 @@
 import numpy as np
-from cv2 import aruco
 import cv2
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import pandas as pd
 
 def get_orientation(nb_images=5):
     images_batch = []

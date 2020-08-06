@@ -2,7 +2,6 @@ import numpy as np
 from cv2 import aruco
 import cv2
 import matplotlib.pyplot as plt
-import matplotlib as mpl
 
 def get_orientation(path : str) -> int:
     """Get the orientation from a saved image
@@ -12,10 +11,14 @@ def get_orientation(path : str) -> int:
     :return: orientation (1 = NORTH / 0 = SOUTH)
     :rtype: int
     """
+    
+    #TODO: TOTEST
+    if type(path)==str:
+        frame = cv2.imread(path)
+    else:
+        frame = path
 
-    frame = cv2.imread(path)
     frame = cv2.resize(frame, (360, 640), interpolation = cv2.INTER_AREA)
-
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     #Change the DICT to 6x6 if doesnt work
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
@@ -36,7 +39,7 @@ if __name__ == "__main__":
     print(get_orientation(path))
     frame = cv2.imread(path)
     frame = cv2.resize(frame, (360, 640), interpolation = cv2.INTER_AREA)
-
+    #TODO: factoriser avec la fonction
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     #Change the DICT to 6x6 if doesnt work ...
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
