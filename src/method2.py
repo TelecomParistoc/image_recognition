@@ -1,25 +1,30 @@
+#pylint:disable=E1101,W0621
+from typing import Union
+import random as rng
+import time
 import numpy as np
 import numpy.linalg as alg
 import cv2
-import time
-import random as rng
 
 rng.seed(12345)
 DEBUG = 1
 VECTEURS = 1
 MIN_PIXEL = 3000
 
-def get_orientation(path : str) -> int:
-    """Get the orientation from a saved image
+def get_orientation(input_image : Union[str, np.ndarray]) -> int:
+    """Get the orientation from an image
 
-    :param path: path of the image taken by the camera
-    :type path: str
+    :param input: path of the image taken by the camera OR frame imported via imread
+    :type input: Union[str, np.ndarray]
     :return: orientation (1 = NORTH / 0 = SOUTH)
     :rtype: int
     """
-    
     #Load image
-    img = cv2.imread(path)
+    if isinstance(input_image, str):
+        img = cv2.imread(input_image)
+    else:
+        img = input_image
+
     img = cv2.resize(img, (360, 640), interpolation = cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
 
@@ -194,6 +199,7 @@ def get_orientation_from_data_final(centroids, num, stats, labels, height, width
             return 1
 
 if __name__ == "__main__":
+    """Debug purpose script"""
     print(get_orientation("test3.jpg"))
     #Load image
     img = cv2.imread("test3.jpg")
