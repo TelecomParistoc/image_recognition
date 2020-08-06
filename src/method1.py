@@ -9,7 +9,7 @@ def get_orientation(input_image : Union[str, np.ndarray]) -> int:
 
     :param input: path of the image taken by the camera OR frame imported via imread
     :type input: Union[str, np.ndarray]
-    :return: orientation (1 = NORTH / 0 = SOUTH)
+    :return: orientation (1 = NORTH / 0 = SOUTH / -1 = NO RESULT)
     :rtype: int
     """
 
@@ -18,7 +18,7 @@ def get_orientation(input_image : Union[str, np.ndarray]) -> int:
     else:
         frame = input_image
 
-    frame = cv2.resize(frame, (360, 640), interpolation = cv2.INTER_AREA)
+    frame = cv2.resize(frame, (360, 640), interpolation=cv2.INTER_AREA)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     #Change the DICT to 6x6 if doesnt work
     aruco_dict = aruco.Dictionary_get(aruco.DICT_4X4_1000)
@@ -33,18 +33,19 @@ def get_orientation(input_image : Union[str, np.ndarray]) -> int:
             return 0
         else:
             return 1
+    return -1
 
 if __name__ == "__main__":
     """Debug purpose code"""
-    path = "./tests/img/test4.jpg"
+    PATH = "./tests/img/test4.jpg"
     #Result of main code
-    print(get_orientation(path))
+    print(get_orientation(PATH))
     #Debug code
     """ Piece to take a photo, just in case
     cam = cv2.VideoCapture(0)
     retval, frame = cam.read()
     """
-    frame = cv2.imread(path)
+    frame = cv2.imread(PATH)
     frame = cv2.resize(frame, (360, 640), interpolation=cv2.INTER_AREA)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     #Change the DICT to 6x6 if it doesnt work ...
@@ -68,7 +69,6 @@ if __name__ == "__main__":
             aa = "SOUTH"
         else:
             aa = "NORTH"
-        cv2.putText(frame, aa, (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255, 3)
     else:
         corner = rejectedImgPoints[1]
         point1 = tuple(corner[0][1])
@@ -79,7 +79,7 @@ if __name__ == "__main__":
             aa = "SOUTH(R)"
         else:
             aa = "NORTH(R)"
-        cv2.putText(frame, aa, (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255, 3)
+    cv2.putText(frame, aa, (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255, 3)
     cv2.imshow("Lol", frame)
     cv2.waitKey(1000)
     input()

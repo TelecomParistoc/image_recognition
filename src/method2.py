@@ -1,7 +1,6 @@
 #pylint:disable=E1101,W0621
 from typing import Union
 import random as rng
-import time
 import numpy as np
 import numpy.linalg as alg
 import cv2
@@ -142,7 +141,7 @@ def get_orientation_from_data(centroids, num, stats, labels, height, width, img,
             cv2.arrowedLine(img, (int(x), int(y)), (int(x + vecteur_propre_2_normalized[0]*50), int(y + vecteur_propre_2_normalized[1]*50)),  (0, 255, 255), 5)
             cv2.putText(img, aa, (0,50), cv2.FONT_HERSHEY_SIMPLEX, 2, 255, 3)
             cv2.imshow('Debug vecteurs', img)
-            cv2.waitKey(1000)
+            cv2.waitKey(10000)
 
     return(aa)
     
@@ -200,11 +199,11 @@ def get_orientation_from_data_final(centroids, num, stats, labels, height, width
 
 if __name__ == "__main__":
     """Debug purpose script"""
-    path = "tests/img/test3.jpg"
-    print(get_orientation(path))
+    PATH = "tests/img/test4.jpg"
+    print(get_orientation(PATH))
     #Load image
-    img = cv2.imread(path)
-    img = cv2.resize(img, (360, 640), interpolation = cv2.INTER_AREA)
+    img = cv2.imread(PATH)
+    img = cv2.resize(img, (360, 640), interpolation=cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
 
     #Blur
