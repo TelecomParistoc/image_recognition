@@ -36,7 +36,7 @@ def get_orientation(input_image : Union[str, np.ndarray]) -> int:
 
 if __name__ == "__main__":
     """Debug purpose code"""
-    path = "./test4.jpg"
+    path = "./tests/img/test4.jpg"
     #Result of main code
     print(get_orientation(path))
     #Debug code

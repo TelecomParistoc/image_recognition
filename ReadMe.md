@@ -1,17 +1,19 @@
-# Image recognition scripts
+# Orientation detector
 
-For the Coupe de Robotique, we need to determine the orientation of a girouette
+For the Coupe de Robotique, we need to determine the orientation of a compass.
 
-## Description of the girouette
+## Description
 
-TODO: readme
+Here is a description of the compass :
 
-## Algorithms
+TODO: compass
 
-### First: cv2 library
-TODO: readme
+This program uses 2 different methods to determine the orientation :
+- the first one uses the aruco tag in the middle
+- the first one uses the black half-circle
 
-### Second : cv2 homemade
-TODO: readme
+Details can be found in the src folder.
 
-TODO: tuning algo 
+## Setup 
+
+TODO: setup

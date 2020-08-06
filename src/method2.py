@@ -200,9 +200,10 @@ def get_orientation_from_data_final(centroids, num, stats, labels, height, width
 
 if __name__ == "__main__":
     """Debug purpose script"""
-    print(get_orientation("test3.jpg"))
+    path = "tests/img/test3.jpg"
+    print(get_orientation(path))
     #Load image
-    img = cv2.imread("test3.jpg")
+    img = cv2.imread(path)
     img = cv2.resize(img, (360, 640), interpolation = cv2.INTER_AREA)
     height, width = img.shape[0], img.shape[1]
 
