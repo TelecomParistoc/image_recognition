@@ -6,7 +6,7 @@ For the Coupe de Robotique, we need to determine the orientation of a compass.
 
 Here is a description of the compass :
 
-<img src="../doc/gir.jpg" width="350">
+<img src="../doc/gir.png" width="350">
 
 This program uses 2 different methods to determine the orientation :
 - the first one uses the aruco tag in the middle
